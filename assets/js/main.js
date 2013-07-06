@@ -1,8 +1,10 @@
-var socket = io.connect('http://localhost:8090');
-var chart = new Chart(socket);
-socket.on('chart', function (data) {
+var chart = new Chart();
+d3.json('assets/data/chart.json', function (err, data) {
   chart.render(data);
 });
-socket.on('graph', function (data) {
-  chart.update(data);
-});
+//var socket = io.connect('http://localhost:8090');
+//socket.on('chart', function (data) {
+//});
+//socket.on('graph', function (data) {
+  //chart.update(data);
+//});

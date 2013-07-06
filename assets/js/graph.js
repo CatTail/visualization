@@ -13,7 +13,7 @@ Graph.prototype.render = function (data, centre) {
   var _this = this;
   _this.data = data;
   _this.centre = centre;
-  var transform = "translate("+(centre.x-_this.width/2+40)+","+(centre.y-_this.height/2+15)+")";
+  var transform = "translate("+(centre.x-_this.width/2+40)+","+(centre.y-_this.height/2+17)+")";
 
   _this.force
     .nodes(data.nodes)
@@ -64,6 +64,7 @@ Graph.prototype.render = function (data, centre) {
     _this.container.selectAll('.link, .node, text')
       .attr('transform', function () { return transform; });
   });
+
 };
 
 Graph.prototype.clear = function () {
@@ -71,5 +72,18 @@ Graph.prototype.clear = function () {
 };
 
 Graph.prototype.update = function (data, centre) {
+  var _this = this;
   this.render(data, centre);
+  var index = 1;
+  setInterval(function () {
+    d3.json('http://localhost:8000/api/test.json', function (err, data) {
+      // cross domain
+      // data handler
+      //console.log(data);
+      //data.nodes.push({'name':'start','group':5});
+      //data.links.push({'source':0,'target':index++,'value':1});
+      //_this.clear();
+      //_this.render(data, centre);
+    });
+  }, 1000);
 };
