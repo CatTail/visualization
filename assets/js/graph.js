@@ -34,10 +34,11 @@ Graph.prototype.render = function (data, centre) {
     .style('fill', function(d) { return _this.color(d.group); })
     .call(_this.force.drag);
 
-  _this.texts = _this.container.selectAll('text')
+  _this.texts = _this.container.selectAll('.nodetext')
     .data(data.nodes)
     .enter()
     .append('text')
+    .attr('class', 'nodetext')
     .text(function (d) { return d.name; })
 //    .attr('font-family', 'sans-serif')
     .attr('font-size', '10px');
@@ -61,29 +62,32 @@ Graph.prototype.render = function (data, centre) {
       .attr('x', function (d) { return d.x; })
       .attr('y', function (d) { return d.y; });
 
-    _this.container.selectAll('.link, .node, text')
+    _this.container.selectAll('.link, .node, .nodetext')
       .attr('transform', function () { return transform; });
   });
 
 };
 
 Graph.prototype.clear = function () {
-  this.container.selectAll('.node, .link, text').remove();
+  this.container.selectAll('.node, .link, .nodetext').remove();
 };
 
 Graph.prototype.update = function (data, centre) {
   var _this = this;
   this.render(data, centre);
   var index = 1;
-  setInterval(function () {
-    d3.json('http://localhost:8000/api/test.json', function (err, data) {
+  setTimeout(function () {
+    clearInterval(a);
+  }, 5000);
+  var a = setInterval(function () {
+    //d3.json('http://localhost:8000/api/test.json', function (err, data) {
       // cross domain
       // data handler
-      //console.log(data);
-      //data.nodes.push({'name':'start','group':5});
-      //data.links.push({'source':0,'target':index++,'value':1});
-      //_this.clear();
-      //_this.render(data, centre);
-    });
+      console.log(data);
+      data.nodes.push({'name':'start','group':5});
+      data.links.push({'source':0,'target':index++,'value':1});
+      _this.clear();
+      _this.render(data, centre);
+    //});
   }, 1000);
 };
