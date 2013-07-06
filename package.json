@@ -1,0 +1,25 @@
+{
+  "name": "tagcloud",
+  "version": "0.0.0",
+  "description": "Data tag visualization cloud",
+  "main": "index.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/CatTail/tagcloud.git"
+  },
+  "keywords": [
+    "tag",
+    "visualization",
+    "data"
+  ],
+  "author": "CatTail",
+  "license": "BSD",
+  "dependencies": {
+    "d3": "~3.2.3",
+    "glob": "~3.2.1",
+    "socket.io": "~0.9.16"
+  }
+}

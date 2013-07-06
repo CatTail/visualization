@@ -1,0 +1,10 @@
+#! /bin/bash
+
+BASEDIR=$(dirname $0)
+page=0
+urls=''
+while test $page -lt 1000; do
+  page=$((page+1))
+  wget "http://api.stackoverflow.com/1.1/questions?pagesize=100&page=$page" -O $BASEDIR/../data/questions$page".gz"
+  gunzip -c $BASEDIR/../data/questions$page".gz" > $BASEDIR/../data/questions$page".json"
+done
