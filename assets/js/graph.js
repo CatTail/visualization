@@ -13,8 +13,7 @@ Graph.prototype.render = function (data, centre) {
   var _this = this;
   _this.data = data;
   _this.centre = centre;
-  var transform =
-    "translate("+(centre.x-_this.width/2)+","+(centre.y-_this.height/2)+")";
+  var transform = "translate("+(centre.x-_this.width/2+40)+","+(centre.y-_this.height/2+15)+")";
 
   _this.force
     .nodes(data.nodes)
@@ -71,5 +70,6 @@ Graph.prototype.clear = function () {
   this.container.selectAll('.node, .link, text').remove();
 };
 
-Graph.prototype.update = function () {
+Graph.prototype.update = function (data, centre) {
+  this.render(data, centre);
 };
