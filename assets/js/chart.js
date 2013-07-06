@@ -4,10 +4,10 @@ function Chart () {
   this.height = 500;// + this.margin.top + this.margin.bottom;
 
   var chart = d3.select('body').append('svg')
-    .attr('class', 'chart')
     .attr('width', this.width+this.margin.left+this.margin.right)
     .attr('height', this.height+this.margin.top+this.margin.bottom)
     .append('g')
+    .attr('class', 'chart')
     .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
   this.color = d3.scale.category20();
@@ -24,7 +24,7 @@ function Chart () {
     .orient("bottom");
 
   this.container = d3.select('svg');
-  this.chart = d3.select('svg.chart g');
+  this.chart = d3.select('svg .chart');
 
   this.graph = new Graph(this.width, this.height);
 }
@@ -77,8 +77,12 @@ Chart.prototype.clear = function () {
 
 Chart.prototype.renderGraph = function (centre) {
   var _this = this;
-  // polling
-  d3.json('assets/data/graph.json', function (err, data) {
-    _this.graph.update(data, centre);
+
+  $.when($('.dot, .bar, .axis').hide('slow')).done(function() {
+    console.log(1);
+    //polling
+    d3.json('assets/data/graph.json', function (err, data) {
+      _this.graph.update(data, centre);
+    });
   });
 };
