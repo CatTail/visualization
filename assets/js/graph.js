@@ -5,8 +5,7 @@ function Graph (width, height) {
   this.color = d3.scale.category20();
   this.force = d3.layout.force()
       .charge(-120)
-      .linkDistance(30)
-      .size([this.width, this.height]);
+      .linkDistance(100) .size([this.width, this.height]);
 };
 
 Graph.prototype.render = function (data, centre) {
@@ -75,19 +74,15 @@ Graph.prototype.clear = function () {
 Graph.prototype.update = function (data, centre) {
   var _this = this;
   this.render(data, centre);
-  var index = 1;
-  setTimeout(function () {
-    clearInterval(a);
-  }, 5000);
-  var a = setInterval(function () {
-    //d3.json('http://localhost:8000/api/test.json', function (err, data) {
-      // cross domain
-      // data handler
-      console.log(data);
-      data.nodes.push({'name':'start','group':5});
-      data.links.push({'source':0,'target':index++,'value':1});
-      _this.clear();
-      _this.render(data, centre);
-    //});
-  }, 1000);
+  //var a = setInterval(function () {
+    ////d3.json('http://localhost:8000/api/test.json', function (err, data) {
+      //// cross domain
+      //// data handler
+      //console.log(data);
+      //data.nodes.push({'name':'start','group':5});
+      //data.links.push({'source':0,'target':index++,'value':1});
+      //_this.clear();
+      //_this.render(data, centre);
+    ////});
+  //}, 1000);
 };

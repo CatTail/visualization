@@ -1,32 +1,28 @@
-.node {
+body {
+  background: #222;
+}
+
+circle {
+  fill: none;
+  stroke-width: 1.5px;
+}
+
+.node.user {
   stroke: #fff;
   stroke-width: 1.5px;
 }
 
 .link {
-  stroke: #999;
+  stroke: #FFF;
   stroke-opacity: .6;
 }
 
-body {
-  font: 10px sans-serif;
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.bar {
-  fill: steelblue;
-}
-
-.x.axis path {
-  display: none;
-}
-
-svg.graph {
+canvas, svg {
   position: absolute;
+  top: 0;
+  left: 0
+}
+
+svg {
+  z-index: 10;
 }

@@ -20,6 +20,7 @@
   "dependencies": {
     "d3": "~3.2.3",
     "glob": "~3.2.1",
-    "socket.io": "~0.9.16"
+    "socket.io": "~0.9.16",
+    "async": "~0.2.9"
   }
 }
