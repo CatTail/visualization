@@ -200,7 +200,7 @@ Graph.prototype.retweet = function (uid, mid) {
   this.render(this.data);
 };
 
-d3.json('assets/data/tree.json', function (err, json) {
+d3.json('assets/data/person.json', function (err, json) {
   json.nodes.forEach(function (node) {
     node.group = uuid(); // colors
   });
@@ -210,26 +210,38 @@ d3.json('assets/data/tree.json', function (err, json) {
   graph.render(json);
 
   var socket = io.connect('http://localhost:8090');
-  socket.on('at', function (data) {
-    console.log(data);
-    //graph.at(data.from, data.to);
-    graph.ray(data.from, data.to);
-    setTimeout(function () {
+  try {
+    socket.on('at', function (data) {
+      socket.emit('backup', graph.data);
+      //graph.at(data.from, data.to);
+      console.log(data);
       graph.ray(data.from, data.to);
       setTimeout(function () {
         graph.ray(data.from, data.to);
-      }, 300);
-    }, 200);
-  });
-  socket.on('tweet', function (data) {
-    console.log(data);
-    graph.tweet(data.uid, {mid: data.mid});
-  });
-  socket.on('retweet', function (data) {
-    console.log(data);
-    graph.retweet(data.uid, data.mid);
-  });
+        setTimeout(function () {
+          graph.ray(data.from, data.to);
+        }, 300);
+      }, 200);
+    });
+    socket.on('tweet', function (data) {
+      console.log(data);
+      graph.tweet(data.uid, {mid: data.mid});
+    });
+    socket.on('retweet', function (data) {
+      console.log(data);
+      graph.retweet(data.uid, data.mid);
+    });
+    socket.on('resume', function (data) {
+      data.nodes = _.map(data.nodes, function (node) {
+        return {uid: node.uid, name: node.name, type: node.type, group: uuid()};
+      });
+      data.links = _.map(data.links, function (link) {
+        return {source: link.source.index, target: link.target.index, type: link.type};
+      });
+      graph.clear();
+      graph.render(data);
+    });
+  } catch (err) {
+    socket.emit('resume');
+  }
 });
-
-// yello FFFF66
-// blue 99FFFF
