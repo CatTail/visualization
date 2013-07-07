@@ -1,5 +1,12 @@
 body {
-  background: #222;
+  background: #0c1d2e; /* Old browsers */
+  background: -moz-linear-gradient(-45deg,  #0c1d2e 0%, #2f1109 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,#0c1d2e), color-stop(100%,#2f1109)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(-45deg,  #0c1d2e 0%,#2f1109 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(-45deg,  #0c1d2e 0%,#2f1109 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(-45deg,  #0c1d2e 0%,#2f1109 100%); /* IE10+ */
+  background: linear-gradient(135deg,  #0c1d2e 0%,#2f1109 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0c1d2e', endColorstr='#2f1109',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 }
 
 circle {
@@ -12,8 +19,13 @@ circle {
   stroke-width: 1.5px;
 }
 
-.link {
-  stroke: #FFF;
+.link.tweet {
+  stroke: #FFFF66;
+  stroke-opacity: .6;
+}
+
+.link.retweet {
+  stroke: #99FFFF;
   stroke-opacity: .6;
 }
 

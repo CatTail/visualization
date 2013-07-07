@@ -8,7 +8,7 @@ function Graph (width, height) {
   this.color = d3.scale.category20();
   this.force = d3.layout.force()
       .charge(-200)
-      .linkDistance(200)
+      .linkDistance(100)
       .size([this.width, this.height]);
 };
 
@@ -21,27 +21,36 @@ Graph.prototype.render = function (data) {
     .links(data.links)
     .start();
 
-  _this.links = _this.container.selectAll('.link')
-    .data(data.links)
+  _this.tweets = _this.container.selectAll('.link.tweet')
+    .data(_.filter(data.links, function(d){ return d.type === 'tweet'; }))
     .enter().append('line')
-    .attr('class', 'link')
+    .attr('class', 'link tweet')
+    .style('stroke-width', function(d) { return Math.sqrt(d.value); });
+
+  _this.retweets = _this.container.selectAll('.link.retweet')
+    .data(_.filter(data.links, function(d){ return d.type === 'retweet'; }))
+    .enter().append('line')
+    .attr('class', 'link retweet')
     .style('stroke-width', function(d) { return Math.sqrt(d.value); });
 
   _this.users = _this.container.selectAll('.node.user')
     .data(_.filter(data.nodes, function(node){ return node.type === 'user'; }))
     .enter().append('circle')
     .attr('class', 'node user')
-    .attr('r', 20)
-    .style('fill', function(d) { return _this.color(d.group); })
+    .attr('r', 12)
+    .style('fill', /*'#ccffff'*/function(d) { return _this.color(d.group); })
     .call(_this.force.drag)
     .on('click', _this.particle);
 
   _this.weibos = _this.container.selectAll('.node.weibo')
     .data(_.filter(data.nodes, function(node){ return node.type === 'weibo'; }))
-    .enter().append('rect')
+    .enter()
+    //.append('rect')
+    .append('circle')
     .attr('class', 'node weibo')
-    .attr('width', 10)
-    .attr('height', 10)
+    .attr('r', 3)
+    //.attr('width', 10)
+    //.attr('height', 10)
     .style('fill', function(d) { return _this.color(d.group); })
     .call(_this.force.drag);
 
@@ -59,7 +68,13 @@ Graph.prototype.render = function (data) {
     .text(function(d) { return d.name; });
 
   _this.force.on('tick', function() {
-    _this.links
+    _this.tweets
+      .attr('x1', function(d) { return d.source.x; })
+      .attr('y1', function(d) { return d.source.y; })
+      .attr('x2', function(d) { return d.target.x; })
+      .attr('y2', function(d) { return d.target.y; });
+
+    _this.retweets
       .attr('x1', function(d) { return d.source.x; })
       .attr('y1', function(d) { return d.source.y; })
       .attr('x2', function(d) { return d.target.x; })
@@ -70,8 +85,8 @@ Graph.prototype.render = function (data) {
       .attr('cy', function(d) { return d.y; });
 
     _this.weibos
-      .attr('x', function(d) { return d.x; })
-      .attr('y', function(d) { return d.y; });
+      .attr('cx', function(d) { return d.x; })
+      .attr('cy', function(d) { return d.y; });
 
     _this.texts
       .attr('x', function (d) { return d.x-15; })
@@ -106,12 +121,13 @@ Graph.prototype.particle = (function () {
 Graph.prototype.at = function (from, to) {
   var source, target;
   this.data.nodes.forEach(function (node) {
-    if (node.uid === from.uid) {
-      source = node.uid;
-    } else if (node.uid === to.uid) {
-      target = node.uid;
+    if (node.uid === from) {
+      source = this.data.nodes.indexOf(node);
+      this.particle(source);
+    } else if (node.uid === to) {
+      target = this.data.nodes.indexOf(node);
     }
-  });
+  }, this);
   this.clear();
   this.data.links.push({source: source, target: target, value: 1});
   this.render(this.data);
@@ -119,6 +135,16 @@ Graph.prototype.at = function (from, to) {
 
 Graph.prototype.ray = function (from, to) {
   var _this = this;
+  _this.data.nodes.forEach(function (node) {
+    if (node.type === 'user') {
+      if (node.uid === from) {
+        from = node;
+        _this.particle(from);
+      } else if (node.uid === to) {
+        to = node;
+      }
+    }
+  });
   var context = this.canvas.node().getContext("2d");
   var pace = {x: (to.x-from.x)/10, y: (to.y-from.y)/10};
   var times = 0;
@@ -126,7 +152,7 @@ Graph.prototype.ray = function (from, to) {
   context.lineWidth = 10;
 
   var interval = setInterval(function () {
-    context.clearRect(0, 0, _this.width, height);
+    context.clearRect(0, 0, _this.width, _this.height);
     context.save();
     context.globalCompositeOperation = "lighter";
     times++;
@@ -139,53 +165,71 @@ Graph.prototype.ray = function (from, to) {
     context.restore();
     if (times === 10) {
       clearInterval(interval);
-      context.clearRect(0, 0, _this.width, height);
+      context.clearRect(0, 0, _this.width, _this.height);
     }
   }, 30);
 };
 
-Graph.prototype.tweet = function (user, weibo) {
+Graph.prototype.tweet = function (uid, weibo) {
   this.data.nodes.forEach(function (node) {
     var source, target;
-    if (user.uid === node.uid) {
+    if (uid === node.uid) {
       source = this.data.nodes.indexOf(node);
+      this.particle(node);
       target = this.data.nodes.push(
         {mid: weibo.mid, name: weibo.mid, type: 'weibo'})-1;
-      this.data.links.push({source: source, target: target});
+      this.data.links.push({source: source, target: target, type: 'tweet'});
       this.clear();
       this.render(this.data);
     }
   }, this);
 };
 
-Graph.prototype.retweet = function (user, weibo) {
+Graph.prototype.retweet = function (uid, mid) {
   var source, target;
   this.data.nodes.forEach(function (node) {
-    if (node.type === 'user' && node.uid === user.uid) {
+    if (node.type === 'user' && node.uid === uid) {
       source = this.data.nodes.indexOf(node);
-    } else if (node.type === 'weibo' && node.mid === weibo.mid) {
+      this.particle(node);
+    } else if (node.type === 'weibo' && node.mid === mid) {
       target = this.data.nodes.indexOf(node);
     }
   }, this);
-  this.data.links.push({source: source, target: target});
+  this.data.links.push({source: source, target: target, type: 'retweet'});
   this.clear();
   this.render(this.data);
 };
 
 d3.json('assets/data/tree.json', function (err, json) {
-  this.width = 1024;
-  this.height = 660;
   json.nodes.forEach(function (node) {
-    node.uid = node.group = uuid(); // test
+    node.group = uuid(); // colors
   });
+  var width = 1024;
+  var height = 660;
   var graph = new Graph(width, height);
   graph.render(json);
-  setTimeout(function () {
-    graph.tweet({uid: graph.data.nodes[0].uid, type: 'user'}, {mid: 123});
+
+  var socket = io.connect('http://localhost:8090');
+  socket.on('at', function (data) {
+    console.log(data);
+    //graph.at(data.from, data.to);
+    graph.ray(data.from, data.to);
     setTimeout(function () {
-      graph.retweet({uid: graph.data.nodes[1].uid, type: 'user'}, {mid: 123});
-    }, 1000);
-    //graph.at({uid: 0}, {uid: 1});
-    //graph.ray(graph.data.nodes[0], graph.data.nodes[1]);
-  }, 2000);
+      graph.ray(data.from, data.to);
+      setTimeout(function () {
+        graph.ray(data.from, data.to);
+      }, 300);
+    }, 200);
+  });
+  socket.on('tweet', function (data) {
+    console.log(data);
+    graph.tweet(data.uid, {mid: data.mid});
+  });
+  socket.on('retweet', function (data) {
+    console.log(data);
+    graph.retweet(data.uid, data.mid);
+  });
 });
+
+// yello FFFF66
+// blue 99FFFF
