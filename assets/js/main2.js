@@ -145,6 +145,11 @@ Graph.prototype.ray = function (from, to) {
       }
     }
   });
+  _.each(this.data.groups, function (group) {
+    if (group.members.indexOf(from.name) !== -1) {
+      group.score++;
+    }
+  });
   var context = this.canvas.node().getContext("2d");
   var pace = {x: (to.x-from.x)/10, y: (to.y-from.y)/10};
   var times = 0;
@@ -174,6 +179,11 @@ Graph.prototype.tweet = function (uid, weibo) {
   this.data.nodes.forEach(function (node) {
     var source, target;
     if (uid === node.uid) {
+      _.each(this.data.groups, function (group) {
+        if (group.members.indexOf(node.name) !== -1) {
+          group.score++;
+        }
+      });
       source = this.data.nodes.indexOf(node);
       this.particle(node);
       target = this.data.nodes.push(
@@ -189,6 +199,11 @@ Graph.prototype.retweet = function (uid, mid) {
   var source, target;
   this.data.nodes.forEach(function (node) {
     if (node.type === 'user' && node.uid === uid) {
+      _.each(this.data.groups, function (group) {
+        if (group.members.indexOf(node.name) !== -1) {
+          group.score++;
+        }
+      });
       source = this.data.nodes.indexOf(node);
       this.particle(node);
     } else if (node.type === 'weibo' && node.mid === mid) {
@@ -200,48 +215,78 @@ Graph.prototype.retweet = function (uid, mid) {
   this.render(this.data);
 };
 
-d3.json('assets/data/person.json', function (err, json) {
-  json.nodes.forEach(function (node) {
-    node.group = uuid(); // colors
+Graph.prototype.updateStat = function () {
+  $('#stat tr').remove();
+  _.each(this.data.groups, function (group) {
+    if (!group.score) {
+      group.score = 0;
+    }
+  }, this);
+  this.data.groups = _.sortBy(this.data.groups, function (group) {
+    return -group.score;
   });
-  var width = 1024;
-  var height = 660;
-  var graph = new Graph(width, height);
-  graph.render(json);
+  var compiled =
+    _.template("<tr class=\"<% if(index===0) { %>first<% } %>\"><td class=\"teamname\"><%= groupname %></td><td class=\"teamvalue\"><%= score %></td></tr>");
+  _.each(this.data.groups, function (group, index) {
+    $('#stat').append($(compiled(_.extend({index: index}, group))));
+  });
+};
 
-  var socket = io.connect('http://localhost:8090');
-  try {
-    socket.on('at', function (data) {
-      socket.emit('backup', graph.data);
-      //graph.at(data.from, data.to);
-      console.log(data);
-      graph.ray(data.from, data.to);
-      setTimeout(function () {
+var socket = io.connect('http://localhost:8090');
+d3.json('assets/data/person.json', function (err, json) {
+  d3.json('assets/data/group.json', function (err, groups) {
+    json.nodes.forEach(function (node) {
+      node.group = uuid(); // colors
+    });
+    json.groups = groups;
+    var width = 1024;
+    var height = 660;
+    var graph = new Graph(width, height);
+    graph.render(json);
+    graph.updateStat();
+    try {
+      socket.on('at', function (data) {
+        socket.emit('backup', graph.data);
+        //graph.at(data.from, data.to);
+        console.log(data);
         graph.ray(data.from, data.to);
         setTimeout(function () {
           graph.ray(data.from, data.to);
-        }, 300);
-      }, 200);
-    });
-    socket.on('tweet', function (data) {
-      console.log(data);
-      graph.tweet(data.uid, {mid: data.mid});
-    });
-    socket.on('retweet', function (data) {
-      console.log(data);
-      graph.retweet(data.uid, data.mid);
-    });
-    socket.on('resume', function (data) {
-      data.nodes = _.map(data.nodes, function (node) {
-        return {uid: node.uid, name: node.name, type: node.type, group: uuid()};
+          setTimeout(function () {
+            graph.ray(data.from, data.to);
+          }, 300);
+        }, 200);
       });
-      data.links = _.map(data.links, function (link) {
-        return {source: link.source.index, target: link.target.index, type: link.type};
+      socket.on('tweet', function (data) {
+        socket.emit('backup', graph.data);
+        console.log(data);
+        graph.tweet(data.uid, {mid: data.mid});
       });
-      graph.clear();
-      graph.render(data);
-    });
-  } catch (err) {
-    socket.emit('resume');
-  }
+      socket.on('retweet', function (data) {
+        socket.emit('backup', graph.data);
+        console.log(data);
+        graph.retweet(data.uid, data.mid);
+      });
+      socket.on('resume', function (data) {
+        //var newData = {};
+        //newData.nodes = _.map(data.nodes, function (node) {
+          //return {uid: node.uid, name: node.name, type: node.type, group: uuid()};
+        //});
+        //newData.links = _.map(data.links, function (link) {
+          //return {source: link.source.index, target: link.target.index, type: link.type};
+        //});
+        //newData.groups = data.groups;
+        //graph.clear();
+        //graph.render(newData);
+        //graph.updateStat();
+      });
+    } catch (err) {
+      socket.emit('resume');
+    }
+  });
 });
+
+window.onerror = function () {
+  //window.location = window.location.href;
+  //return false;
+};

@@ -5,28 +5,24 @@ var app = express();
 var socket;
 app.listen(3000);
   app.get('/api/at', function(req, res){
-    fs.appendFileSync('assets/data/backup.urls', req.originalUrl+'\n', 'utf8');
     console.log(req.query);
     socket.emit('at', req.query);
     res.send('done!');
   });
 
   app.get('/api/tweet', function (req, res) {
-    fs.appendFileSync('assets/data/backup.urls', req.originalUrl+'\n', 'utf8');
     console.log(req.query);
     socket.emit('tweet', req.query);
     res.send('done!');
   });
 
   app.get('/api/retweet', function (req, res) {
-    fs.appendFileSync('assets/data/backup.urls', req.originalUrl+'\n', 'utf8');
     console.log(req.query);
     socket.emit('retweet', req.query);
     res.send('done!');
   });
 
   app.get('/api/XXX', function (req, res) {
-    fs.appendFileSync('assets/data/backup.urls', req.originalUrl+'\n', 'utf8');
     console.log(req.query);
     socket.emit('XXX', req.query);
     res.send('done!');

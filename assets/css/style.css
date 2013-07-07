@@ -38,3 +38,36 @@ canvas, svg {
 svg {
   z-index: 10;
 }
+
+table {
+  position: absolute;
+  top: 30px;
+  right: 40px;
+  width: 300px;
+  border-left: 12px solid #F9FF5F;
+}
+
+table caption {
+  color: #A6F1FF;
+  font-size: 30px;
+  margin-bottom: 30px;
+}
+
+.first .teamvalue {
+  font-size: 18px;
+}
+
+.first .teamname {
+  font-size: 24px;
+}
+
+table .teamname {
+  color: #F9FF5F;
+  font-size: 16px;
+  margin-bottom: 18px;
+}
+
+table .teamvalue {
+  font-size: 16px;
+  color: #A6F1FF;
+}
