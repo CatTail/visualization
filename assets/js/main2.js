@@ -148,8 +148,9 @@ Graph.prototype.ray = function (from, to) {
   _.each(this.data.groups, function (group) {
     if (group.members.indexOf(from.name) !== -1) {
       group.score++;
+      this.updateStat();
     }
-  });
+  }, this);
   var context = this.canvas.node().getContext("2d");
   var pace = {x: (to.x-from.x)/10, y: (to.y-from.y)/10};
   var times = 0;
@@ -182,8 +183,9 @@ Graph.prototype.tweet = function (uid, weibo) {
       _.each(this.data.groups, function (group) {
         if (group.members.indexOf(node.name) !== -1) {
           group.score++;
+          this.updateStat()
         }
-      });
+      }, this);
       source = this.data.nodes.indexOf(node);
       this.particle(node);
       target = this.data.nodes.push(
@@ -202,8 +204,9 @@ Graph.prototype.retweet = function (uid, mid) {
       _.each(this.data.groups, function (group) {
         if (group.members.indexOf(node.name) !== -1) {
           group.score++;
+          this.updateStat();
         }
-      });
+      }, this);
       source = this.data.nodes.indexOf(node);
       this.particle(node);
     } else if (node.type === 'weibo' && node.mid === mid) {
@@ -232,7 +235,7 @@ Graph.prototype.updateStat = function () {
   });
 };
 
-var socket = io.connect('http://localhost:8090');
+var socket = io.connect('http://192.168.1.114:8090');
 d3.json('assets/data/person.json', function (err, json) {
   d3.json('assets/data/group.json', function (err, groups) {
     json.nodes.forEach(function (node) {
@@ -268,17 +271,17 @@ d3.json('assets/data/person.json', function (err, json) {
         graph.retweet(data.uid, data.mid);
       });
       socket.on('resume', function (data) {
-        //var newData = {};
-        //newData.nodes = _.map(data.nodes, function (node) {
-          //return {uid: node.uid, name: node.name, type: node.type, group: uuid()};
-        //});
-        //newData.links = _.map(data.links, function (link) {
-          //return {source: link.source.index, target: link.target.index, type: link.type};
-        //});
-        //newData.groups = data.groups;
-        //graph.clear();
-        //graph.render(newData);
-        //graph.updateStat();
+        var newData = {};
+        newData.nodes = _.map(data.nodes, function (node) {
+          return {uid: node.uid, name: node.name, type: node.type, group: uuid()};
+        });
+        newData.links = _.map(data.links, function (link) {
+          return {source: link.source.index, target: link.target.index, type: link.type};
+        });
+        newData.groups = data.groups ? data.groups : groups;
+        graph.clear();
+        graph.render(newData);
+        graph.updateStat();
       });
     } catch (err) {
       socket.emit('resume');
@@ -287,6 +290,6 @@ d3.json('assets/data/person.json', function (err, json) {
 });
 
 window.onerror = function () {
-  //window.location = window.location.href;
-  //return false;
+  window.location = window.location.href;
+  return false;
 };

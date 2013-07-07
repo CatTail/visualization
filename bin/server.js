@@ -4,29 +4,29 @@ var express = require('express');
 var app = express();
 var socket;
 app.listen(3000);
-  app.get('/api/at', function(req, res){
-    console.log(req.query);
-    socket.emit('at', req.query);
-    res.send('done!');
-  });
+app.get('/api/at', function(req, res){
+  console.log(req.query);
+  socket.emit('at', req.query);
+  res.send('done!');
+});
 
-  app.get('/api/tweet', function (req, res) {
-    console.log(req.query);
-    socket.emit('tweet', req.query);
-    res.send('done!');
-  });
+app.get('/api/tweet', function (req, res) {
+  console.log(req.query);
+  socket.emit('tweet', req.query);
+  res.send('done!');
+});
 
-  app.get('/api/retweet', function (req, res) {
-    console.log(req.query);
-    socket.emit('retweet', req.query);
-    res.send('done!');
-  });
+app.get('/api/retweet', function (req, res) {
+  console.log(req.query);
+  socket.emit('retweet', req.query);
+  res.send('done!');
+});
 
-  app.get('/api/XXX', function (req, res) {
-    console.log(req.query);
-    socket.emit('XXX', req.query);
-    res.send('done!');
-  });
+app.get('/api/XXX', function (req, res) {
+  console.log(req.query);
+  socket.emit('XXX', req.query);
+  res.send('done!');
+});
 
 io.sockets.on('connection', function (s) {
   socket = s;

@@ -7,6 +7,7 @@ body {
   background: -ms-linear-gradient(-45deg,  #0c1d2e 0%,#2f1109 100%); /* IE10+ */
   background: linear-gradient(135deg,  #0c1d2e 0%,#2f1109 100%); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0c1d2e', endColorstr='#2f1109',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+  font-family: "微软雅黑";
 }
 
 circle {
