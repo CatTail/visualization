@@ -235,7 +235,7 @@ Graph.prototype.updateStat = function () {
   });
 };
 
-var socket = io.connect('http://192.168.1.114:8090');
+var socket = io.connect('http://localhost:8090');
 d3.json('assets/data/person.json', function (err, json) {
   d3.json('assets/data/group.json', function (err, groups) {
     json.nodes.forEach(function (node) {
